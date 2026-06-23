@@ -604,6 +604,27 @@ button, input {
   margin-bottom: 1.5rem;
 }
 
+.matching-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.matching-bank-section,
+.matching-terms-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.matching-label {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+  text-align: right;
+}
+
 .matching-col {
   direction: rtl;
   text-align: right;
@@ -702,6 +723,10 @@ button, input {
   .matching-columns {
     grid-template-columns: 1fr;
     direction: rtl;
+  }
+
+  .matching-col {
+    min-height: auto;
   }
 }
 

@@ -127,10 +127,16 @@
             <span id="matchingProgress" class="question-counter">0 / 0</span>
           </div>
           <div class="chapter-badge" id="matchingChapterBadge"></div>
-          <p class="matching-hint">اسحب الكلمة من العمود إلى الفراغ المناسب، أو اضغط على الكلمة ثم اضغط على الفراغ</p>
-          <div class="matching-columns">
-            <div class="matching-col" id="matchingTerms"></div>
-            <div class="matching-col matching-bank" id="matchingBank"></div>
+          <p class="matching-hint">اضغط على إجابة ثم اضغط على السؤال المناسب</p>
+          <div class="matching-container">
+            <div class="matching-bank-section">
+              <div class="matching-label">الإجابات</div>
+              <div class="matching-col matching-bank" id="matchingBank"></div>
+            </div>
+            <div class="matching-terms-section">
+              <div class="matching-label">الأسئلة</div>
+              <div class="matching-col" id="matchingTerms"></div>
+            </div>
           </div>
           <div class="quiz-nav">
             <button id="matchingSubmitBtn" class="btn btn-primary matching-submit">إنهاء المزاوجة</button>
