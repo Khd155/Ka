@@ -50,6 +50,9 @@ const UI = {
       nextChapterBtn: document.getElementById('nextChapterBtn'),
       retakeChapterBtn: document.getElementById('retakeChapterBtn'),
       backToChaptersBtn: document.getElementById('backToChaptersBtn'),
+      chapterReviewWrongBtn: document.getElementById('chapterReviewWrongBtn'),
+      chapterReviewAllBtn: document.getElementById('chapterReviewAllBtn'),
+      chapterReviewContainer: document.getElementById('chapterReviewContainer'),
 
       matchingSummary: document.getElementById('matchingSummary'),
 
@@ -329,6 +332,57 @@ const UI = {
     this.els.chapterCorrectCount.textContent = results.correct;
     this.els.chapterWrongCount.textContent = results.wrong;
     document.getElementById('chapterResultRing').style.setProperty('--pct', results.percent);
+    this.els.chapterReviewContainer.innerHTML = '';
+    this.els.chapterReviewContainer.classList.add('hidden');
+  },
+
+  renderChapterReview(details, onlyWrong) {
+    const nonMatching = details.filter(d => d.question.type !== 'matching');
+    const list = onlyWrong ? nonMatching.filter(d => !d.isCorrect) : nonMatching;
+    const container = this.els.chapterReviewContainer;
+    container.innerHTML = '';
+
+    if (list.length === 0) {
+      const p = document.createElement('p');
+      p.textContent = 'لا توجد إجابات خاطئة. أحسنت!';
+      container.appendChild(p);
+    }
+
+    list.forEach((d, i) => {
+      const item = document.createElement('div');
+      item.className = 'review-item';
+
+      const qTitle = document.createElement('div');
+      qTitle.className = 'review-q';
+      qTitle.textContent = `${i + 1}. ${d.question.question}`;
+      item.appendChild(qTitle);
+
+      if (d.question.image) {
+        const img = document.createElement('img');
+        img.src = d.question.image;
+        img.className = 'review-image';
+        item.appendChild(img);
+      }
+
+      const userText = this.formatAnswer(d.question, d.userAnswer);
+      const correctText = this.formatAnswer(d.question, d.question.answer);
+
+      const userRow = document.createElement('div');
+      userRow.className = 'review-answer-row';
+      userRow.innerHTML = `إجابتك: <span class="${d.isCorrect ? 'label-correct' : 'label-wrong'}">${userText}</span>`;
+      item.appendChild(userRow);
+
+      if (!d.isCorrect) {
+        const correctRow = document.createElement('div');
+        correctRow.className = 'review-answer-row';
+        correctRow.innerHTML = `الإجابة الصحيحة: <span class="label-correct">${correctText}</span>`;
+        item.appendChild(correctRow);
+      }
+
+      container.appendChild(item);
+    });
+
+    container.classList.remove('hidden');
   },
 
   renderReview(details, onlyWrong) {

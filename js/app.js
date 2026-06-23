@@ -11,6 +11,7 @@
   let currentChapterMatchingQuestions = [];
   let currentMatchingAnswers = {};
   let currentNonMatchingResults = null;
+  let currentChapterResults = null;
   let globalAggregate = emptyResults();
 
   function emptyResults() {
@@ -149,6 +150,18 @@
       UI.showScreen('chapterScreen');
       UI.populateChapters(allChapters, selectChapter);
     });
+
+    // أزرار المراجعة لنتائج الفصل
+    UI.els.chapterReviewWrongBtn.addEventListener('click', () => {
+      if (currentChapterResults) {
+        UI.renderChapterReview(currentChapterResults.details, true);
+      }
+    });
+    UI.els.chapterReviewAllBtn.addEventListener('click', () => {
+      if (currentChapterResults) {
+        UI.renderChapterReview(currentChapterResults.details, false);
+      }
+    });
   }
 
   function selectChapter(chapterName) {
@@ -279,6 +292,7 @@
   // ينتهي الفصل بالكامل: يعرض نتيجة الفصل أو ينتقل للفصل التالي ضمن الاختبار الشامل
   function completeChapter(results) {
     if (quizMode === 'chapter') {
+      currentChapterResults = results;
       UI.renderChapterResults(currentChapterName, results);
       UI.showScreen('chapterResultScreen');
     } else {
