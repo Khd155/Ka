@@ -4,136 +4,185 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>اختبار الكيمياء التفاعلي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <div class="app-container">
 
     <header class="app-header">
-      <h1 class="app-title">اختبار الكيمياء التفاعلي</h1>
-      <button id="darkModeToggle" class="icon-btn" title="تبديل الوضع الليلي" aria-label="تبديل الوضع الليلي">🌙</button>
+      <div class="app-header-inner">
+        <div class="app-brand">
+          <span class="app-logo">🧪</span>
+          <h1 class="app-title">اختبار الكيمياء</h1>
+        </div>
+        <button id="darkModeToggle" class="icon-btn" title="تبديل الوضع الليلي" aria-label="تبديل الوضع الليلي">🌙</button>
+      </div>
     </header>
 
-    <!-- شاشة البداية -->
-    <section id="startScreen" class="screen active">
-      <div class="card start-card">
-        <h2>اختبار الكيمياء التفاعلي</h2>
-        <p class="muted">اختر نمط الاختبار</p>
+    <main class="app-main">
 
-        <div class="start-options">
-          <label class="option-row">
-            <input type="checkbox" id="timerToggle">
-            <span>تفعيل المؤقت (وقت محدد للاختبار)</span>
-          </label>
-          <div id="timerInputWrap" class="option-row hidden">
-            <label for="timerMinutes">المدة بالدقائق:</label>
-            <input type="number" id="timerMinutes" min="1" max="180" value="30">
+      <!-- شاشة البداية -->
+      <section id="startScreen" class="screen active">
+        <div class="hero">
+          <span class="hero-emoji">⚗️</span>
+          <h2 class="hero-title">جاهز لتختبر معلوماتك؟</h2>
+          <p class="hero-subtitle">راجع مادة الكيمياء بطريقة تفاعلية وممتعة</p>
+        </div>
+
+        <div class="cta-stack">
+          <button id="startByChapterBtn" class="cta-card cta-primary">
+            <span class="cta-icon">📚</span>
+            <span class="cta-text">
+              <strong>ابدأ بالفصول</strong>
+              <small>اختبر نفسك فصلاً بفصل خطوة بخطوة</small>
+            </span>
+            <span class="cta-arrow">‹</span>
+          </button>
+
+          <button id="startAllBtn" class="cta-card cta-secondary">
+            <span class="cta-icon">🚀</span>
+            <span class="cta-text">
+              <strong>اختبار شامل</strong>
+              <small>جميع الأسئلة من كل الفصول دفعة واحدة</small>
+            </span>
+            <span class="cta-arrow">‹</span>
+          </button>
+
+          <button id="resumeBtn" class="cta-card cta-resume hidden">
+            <span class="cta-icon">⏯️</span>
+            <span class="cta-text">
+              <strong>استكمال الاختبار السابق</strong>
+              <small>لديك اختبار غير مكتمل</small>
+            </span>
+            <span class="cta-arrow">‹</span>
+          </button>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-row">
+            <div class="settings-label">
+              <span class="settings-icon">⏱️</span>
+              <span>تفعيل مؤقت الاختبار</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="timerToggle">
+              <span class="switch-track"><span class="switch-thumb"></span></span>
+            </label>
+          </div>
+          <div id="timerInputWrap" class="settings-row hidden">
+            <label for="timerMinutes" class="settings-label"><span>المدة بالدقائق</span></label>
+            <input type="number" id="timerMinutes" class="number-input" min="1" max="180" value="30">
           </div>
         </div>
+      </section>
 
-        <div class="start-actions">
-          <button id="startByChapterBtn" class="btn btn-primary">اختبار بالفصول (موصى به)</button>
-          <button id="startAllBtn" class="btn btn-secondary">اختبار شامل (جميع الفصول)</button>
-          <button id="resumeBtn" class="btn btn-secondary hidden">استكمال الاختبار السابق</button>
+      <!-- شاشة اختيار الفصول -->
+      <section id="chapterScreen" class="screen">
+        <div class="section-head">
+          <button id="backFromChaptersBtn" class="back-btn" aria-label="العودة">›</button>
+          <h2 class="section-title">اختر الفصل</h2>
         </div>
-      </div>
-    </section>
-
-    <!-- شاشة اختيار الفصول -->
-    <section id="chapterScreen" class="screen">
-      <div class="card">
-        <h2 style="text-align: center; margin-bottom: 2rem; background: linear-gradient(135deg, #2563eb, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">اختر الفصل</h2>
         <div class="chapters-grid" id="chaptersGrid"></div>
-        <div style="text-align: center;">
-          <button id="backFromChaptersBtn" class="btn btn-secondary">العودة</button>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- شاشة السؤال -->
-    <section id="quizScreen" class="screen">
-      <div class="quiz-top">
-        <div class="progress-info">
-          <span id="questionCounter">1 من 30</span>
-          <span id="timerDisplay" class="timer hidden">00:00</span>
-        </div>
-        <div class="progress-bar-track">
-          <div id="progressBarFill" class="progress-bar-fill"></div>
-        </div>
-      </div>
-
-      <div class="card question-card">
-        <div class="chapter-badge" id="chapterBadge"></div>
-        <h2 id="questionText" class="question-text"></h2>
-        <div id="questionImageWrap" class="question-image-wrap hidden">
-          <img id="questionImage" alt="صورة توضيحية للسؤال" class="question-image">
-        </div>
-        <div id="optionsContainer" class="options-container"></div>
-      </div>
-
-      <div class="quiz-nav">
-        <button id="prevBtn" class="btn btn-secondary">السابق</button>
-        <button id="finishBtn" class="btn btn-danger">إنهاء الاختبار</button>
-        <button id="nextBtn" class="btn btn-primary">التالي</button>
-      </div>
-    </section>
-
-    <!-- شاشة نتائج الفصل -->
-    <section id="chapterResultScreen" class="screen">
-      <div class="card result-card">
-        <h2 id="chapterResultTitle">نتيجة الفصل</h2>
-        <div class="score-circle">
-          <span id="chapterScoreFraction">0 / 0</span>
-          <span id="chapterScorePercent" class="score-percent">0%</span>
-        </div>
-        <div class="score-stats">
-          <div class="stat correct">
-            <span class="stat-num" id="chapterCorrectCount">0</span>
-            <span class="stat-label">إجابات صحيحة</span>
+      <!-- شاشة السؤال -->
+      <section id="quizScreen" class="screen">
+        <div class="quiz-wrap">
+          <div class="quiz-top">
+            <div class="progress-info">
+              <span id="questionCounter" class="question-counter">1 من 30</span>
+              <span id="timerDisplay" class="timer hidden">00:00</span>
+            </div>
+            <div class="progress-bar-track">
+              <div id="progressBarFill" class="progress-bar-fill"></div>
+            </div>
           </div>
-          <div class="stat wrong">
-            <span class="stat-num" id="chapterWrongCount">0</span>
-            <span class="stat-label">إجابات خاطئة</span>
+
+          <div class="card question-card" id="questionCard">
+            <div class="question-card-inner" id="questionCardInner">
+              <div class="chapter-badge" id="chapterBadge"></div>
+              <h2 id="questionText" class="question-text"></h2>
+              <div id="questionImageWrap" class="question-image-wrap hidden">
+                <img id="questionImage" alt="صورة توضيحية للسؤال" class="question-image">
+              </div>
+              <div id="optionsContainer" class="options-container"></div>
+            </div>
+          </div>
+
+          <div class="quiz-nav">
+            <button id="prevBtn" class="btn btn-ghost">السابق</button>
+            <button id="finishBtn" class="btn btn-danger-ghost">إنهاء</button>
+            <button id="nextBtn" class="btn btn-primary">التالي</button>
           </div>
         </div>
+      </section>
 
-        <div class="result-actions">
-          <button id="nextChapterBtn" class="btn btn-primary">الفصل التالي</button>
-          <button id="retakeChapterBtn" class="btn btn-secondary">إعادة هذا الفصل</button>
-          <button id="backToChaptersBtn" class="btn btn-secondary">اختر فصل آخر</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- شاشة النتائج -->
-    <section id="resultScreen" class="screen">
-      <div class="card result-card">
-        <h2>نتيجتك النهائية</h2>
-        <div class="score-circle">
-          <span id="scoreFraction">0 / 0</span>
-          <span id="scorePercent" class="score-percent">0%</span>
-        </div>
-        <div class="score-stats">
-          <div class="stat correct">
-            <span class="stat-num" id="correctCount">0</span>
-            <span class="stat-label">إجابات صحيحة</span>
+      <!-- شاشة نتائج الفصل -->
+      <section id="chapterResultScreen" class="screen">
+        <div class="card result-card">
+          <div class="result-ring" id="chapterResultRing">
+            <div class="result-ring-inner">
+              <span id="chapterScorePercent" class="result-percent">0%</span>
+              <span id="chapterScoreFraction" class="result-fraction">0 / 0</span>
+            </div>
           </div>
-          <div class="stat wrong">
-            <span class="stat-num" id="wrongCount">0</span>
-            <span class="stat-label">إجابات خاطئة</span>
+          <h2 id="chapterResultTitle" class="result-title">نتيجة الفصل</h2>
+
+          <div class="score-stats">
+            <div class="stat stat-correct">
+              <span class="stat-num" id="chapterCorrectCount">0</span>
+              <span class="stat-label">إجابة صحيحة</span>
+            </div>
+            <div class="stat stat-wrong">
+              <span class="stat-num" id="chapterWrongCount">0</span>
+              <span class="stat-label">إجابة خاطئة</span>
+            </div>
+          </div>
+
+          <div class="result-actions">
+            <button id="nextChapterBtn" class="btn btn-primary">الفصل التالي ‹</button>
+            <button id="retakeChapterBtn" class="btn btn-ghost">إعادة هذا الفصل</button>
+            <button id="backToChaptersBtn" class="btn btn-text">اختر فصلاً آخر</button>
           </div>
         </div>
+      </section>
 
-        <div class="result-actions">
-          <button id="reviewWrongBtn" class="btn btn-secondary">مراجعة الأخطاء فقط</button>
-          <button id="reviewAllBtn" class="btn btn-secondary">عرض جميع الأسئلة مع الحلول</button>
-          <button id="retakeBtn" class="btn btn-primary">إعادة الاختبار</button>
+      <!-- شاشة النتائج -->
+      <section id="resultScreen" class="screen">
+        <div class="card result-card">
+          <div class="result-ring" id="resultRing">
+            <div class="result-ring-inner">
+              <span id="scorePercent" class="result-percent">0%</span>
+              <span id="scoreFraction" class="result-fraction">0 / 0</span>
+            </div>
+          </div>
+          <h2 class="result-title">نتيجتك النهائية</h2>
+
+          <div class="score-stats">
+            <div class="stat stat-correct">
+              <span class="stat-num" id="correctCount">0</span>
+              <span class="stat-label">إجابة صحيحة</span>
+            </div>
+            <div class="stat stat-wrong">
+              <span class="stat-num" id="wrongCount">0</span>
+              <span class="stat-label">إجابة خاطئة</span>
+            </div>
+          </div>
+
+          <div class="result-actions">
+            <button id="reviewWrongBtn" class="btn btn-ghost">مراجعة الأخطاء فقط</button>
+            <button id="reviewAllBtn" class="btn btn-ghost">عرض جميع الأسئلة مع الحلول</button>
+            <button id="retakeBtn" class="btn btn-primary">إعادة الاختبار</button>
+          </div>
+
+          <div id="reviewContainer" class="review-container hidden"></div>
         </div>
+      </section>
 
-        <div id="reviewContainer" class="review-container hidden"></div>
-      </div>
-    </section>
-
+    </main>
   </div>
 
   <script src="js/storage.js"></script>

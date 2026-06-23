@@ -28,6 +28,7 @@ const UI = {
       questionImageWrap: document.getElementById('questionImageWrap'),
       questionImage: document.getElementById('questionImage'),
       optionsContainer: document.getElementById('optionsContainer'),
+      questionCardInner: document.getElementById('questionCardInner'),
       prevBtn: document.getElementById('prevBtn'),
       nextBtn: document.getElementById('nextBtn'),
       finishBtn: document.getElementById('finishBtn'),
@@ -56,7 +57,13 @@ const UI = {
 
   showScreen(name) {
     ['startScreen', 'chapterScreen', 'quizScreen', 'chapterResultScreen', 'resultScreen'].forEach(key => {
-      this.els[key].classList.toggle('active', key === name);
+      const isActive = key === name;
+      this.els[key].classList.toggle('active', isActive);
+      if (isActive) {
+        this.els[key].classList.remove('fade-in');
+        void this.els[key].offsetWidth;
+        this.els[key].classList.add('fade-in');
+      }
     });
   },
 
@@ -111,15 +118,28 @@ const UI = {
         container.appendChild(btn);
       });
     } else if (q.type === 'matching') {
-      container.className = 'options-container matching-grid';
+      container.className = 'options-container matching-field';
+      const select = document.createElement('select');
+      select.className = 'matching-select';
+
+      const placeholder = document.createElement('option');
+      placeholder.textContent = 'اختر الكلمة المناسبة...';
+      placeholder.value = '';
+      placeholder.disabled = true;
+      placeholder.selected = userAnswer === undefined;
+      select.appendChild(placeholder);
+
       q.options.forEach((optText, idx) => {
-        const btn = document.createElement('button');
-        btn.className = 'option-btn';
-        btn.textContent = optText;
-        if (userAnswer === idx) btn.classList.add('selected');
-        btn.addEventListener('click', () => onOptionSelected(idx));
-        container.appendChild(btn);
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.textContent = optText;
+        if (userAnswer === idx) opt.selected = true;
+        select.appendChild(opt);
       });
+
+      select.classList.toggle('answered', userAnswer !== undefined);
+      select.addEventListener('change', () => onOptionSelected(parseInt(select.value, 10)));
+      container.appendChild(select);
     } else {
       container.className = 'options-container tf-options';
       [{ label: 'صحيح', value: true }, { label: 'خطأ', value: false }].forEach(opt => {
@@ -134,6 +154,15 @@ const UI = {
 
     this.updateProgressBar(engine);
     this.updateNavButtons(engine);
+    this.replayTransition();
+  },
+
+  replayTransition() {
+    const el = this.els.questionCardInner;
+    if (!el) return;
+    el.style.animation = 'none';
+    void el.offsetWidth;
+    el.style.animation = '';
   },
 
   updateProgressBar(engine) {
@@ -163,6 +192,7 @@ const UI = {
     this.els.wrongCount.textContent = results.wrong;
     this.els.reviewContainer.innerHTML = '';
     this.els.reviewContainer.classList.add('hidden');
+    document.getElementById('resultRing').style.setProperty('--pct', results.percent);
   },
 
   renderChapterResults(chapterName, results) {
@@ -171,6 +201,7 @@ const UI = {
     this.els.chapterScorePercent.textContent = `${results.percent}%`;
     this.els.chapterCorrectCount.textContent = results.correct;
     this.els.chapterWrongCount.textContent = results.wrong;
+    document.getElementById('chapterResultRing').style.setProperty('--pct', results.percent);
   },
 
   renderReview(details, onlyWrong) {
