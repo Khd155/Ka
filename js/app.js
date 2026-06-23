@@ -17,6 +17,15 @@
     return { correct: 0, wrong: 0, total: 0, percent: 0, details: [] };
   }
 
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
   function combineResults(a, b) {
     const correct = a.correct + b.correct;
     const total = a.total + b.total;
@@ -153,10 +162,10 @@
     currentChapterName = chapterName;
     const chapterQuestions = questionBank.filter(q => q.chapter === chapterName);
     const nonMatching = [
-      ...chapterQuestions.filter(q => q.type === 'mcq'),
-      ...chapterQuestions.filter(q => q.type === 'tf')
+      ...shuffle(chapterQuestions.filter(q => q.type === 'mcq')),
+      ...shuffle(chapterQuestions.filter(q => q.type === 'tf'))
     ];
-    currentChapterMatchingQuestions = chapterQuestions.filter(q => q.type === 'matching');
+    currentChapterMatchingQuestions = shuffle(chapterQuestions.filter(q => q.type === 'matching'));
     currentMatchingAnswers = {};
     currentNonMatchingResults = null;
 

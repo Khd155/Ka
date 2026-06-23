@@ -158,6 +158,16 @@ const UI = {
   updateNavButtons(engine) {
     this.els.prevBtn.disabled = !engine.hasPrev();
     this.els.nextBtn.textContent = engine.hasNext() ? 'التالي' : 'إنهاء';
+    this.els.nextBtn.disabled = !engine.isAnswered();
+  },
+
+  shuffleIndices(n) {
+    const arr = Array.from({ length: n }, (_, i) => i);
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
   },
 
   renderMatchingScreen(chapterName, questions, answers) {
@@ -245,7 +255,8 @@ const UI = {
       termsCol.appendChild(row);
     });
 
-    bank.forEach((word, idx) => {
+    this.shuffleIndices(bank.length).forEach(idx => {
+      const word = bank[idx];
       const wordEl = document.createElement('div');
       wordEl.className = 'matching-word';
       wordEl.draggable = true;
