@@ -3,6 +3,9 @@
   let questionBank = [];
   let engine = null;
   let timerInterval = null;
+  let allChapters = [];
+  let currentChapterIndex = 0;
+  let quizMode = null; // 'chapter' أو 'all'
 
   function init() {
     UI.cacheEls();
@@ -12,9 +15,7 @@
       .then(res => res.json())
       .then(data => {
         questionBank = data;
-        UI.setTotalQuestionsLabel(questionBank.length);
-        const chapters = [...new Set(questionBank.map(q => q.chapter))];
-        UI.populateChapters(chapters);
+        allChapters = [...new Set(questionBank.map(q => q.chapter))];
         checkForSavedQuiz();
       })
       .catch(err => {
@@ -43,16 +44,43 @@
   }
 
   function bindStaticEvents() {
+    // تبديل حقل المؤقت
     UI.els.timerToggle.addEventListener('change', () => {
       UI.els.timerInputWrap.classList.toggle('hidden', !UI.els.timerToggle.checked);
     });
 
-    UI.els.startBtn.addEventListener('click', startNewQuiz);
-    UI.els.resumeBtn.addEventListener('click', resumeQuiz);
-    UI.els.prevBtn.addEventListener('click', () => { engine.goPrev(); renderCurrent(); });
-    UI.els.nextBtn.addEventListener('click', () => { engine.goNext(); renderCurrent(); });
-    UI.els.finishBtn.addEventListener('click', finishQuiz);
+    // أزرار البداية
+    UI.els.startByChapterBtn.addEventListener('click', () => {
+      quizMode = 'chapter';
+      currentChapterIndex = 0;
+      UI.showScreen('chapterScreen');
+      UI.populateChapters(allChapters, startChapterQuiz);
+    });
 
+    UI.els.startAllBtn.addEventListener('click', () => {
+      quizMode = 'all';
+      startAllQuiz();
+    });
+
+    UI.els.resumeBtn.addEventListener('click', resumeQuiz);
+
+    // العودة من شاشة الفصول
+    UI.els.backFromChaptersBtn.addEventListener('click', () => {
+      UI.showScreen('startScreen');
+    });
+
+    // أزرار الاختبار
+    UI.els.prevBtn.addEventListener('click', () => {
+      engine.goPrev();
+      renderCurrent();
+    });
+    UI.els.nextBtn.addEventListener('click', () => {
+      engine.goNext();
+      renderCurrent();
+    });
+    UI.els.finishBtn.addEventListener('click', finishCurrentQuiz);
+
+    // أزرار المراجعة
     UI.els.reviewWrongBtn.addEventListener('click', () => {
       const results = engine.computeResults();
       UI.renderReview(results.details, true);
@@ -66,16 +94,42 @@
       UI.els.resumeBtn.classList.add('hidden');
       UI.showScreen('startScreen');
     });
+
+    // أزرار نتائج الفصل
+    UI.els.nextChapterBtn.addEventListener('click', () => {
+      currentChapterIndex++;
+      if (currentChapterIndex < allChapters.length) {
+        startChapterQuiz(allChapters[currentChapterIndex]);
+      } else {
+        // انتهت جميع الفصول
+        Storage.clearQuizState();
+        UI.els.resumeBtn.classList.add('hidden');
+        UI.showScreen('startScreen');
+        alert('تم إكمال جميع الفصول! شكراً لك على الاختبار.');
+      }
+    });
+
+    UI.els.retakeChapterBtn.addEventListener('click', () => {
+      startChapterQuiz(allChapters[currentChapterIndex]);
+    });
+
+    UI.els.backToChaptersBtn.addEventListener('click', () => {
+      UI.showScreen('chapterScreen');
+      UI.populateChapters(allChapters, startChapterQuiz);
+    });
   }
 
-  function getFilteredQuestions() {
-    const chapter = UI.els.chapterSelect.value;
-    const pool = chapter === 'all' ? questionBank : questionBank.filter(q => q.chapter === chapter);
-    return pool;
+  // نظام الترتيب: MCQ أولاً، ثم TF، ثم Matching
+  function getOrderedChapterQuestions(chapterName) {
+    const chapterQuestions = questionBank.filter(q => q.chapter === chapterName);
+    const mcq = chapterQuestions.filter(q => q.type === 'mcq');
+    const tf = chapterQuestions.filter(q => q.type === 'tf');
+    const matching = chapterQuestions.filter(q => q.type === 'matching');
+    return [...mcq, ...tf, ...matching];
   }
 
-  function startNewQuiz() {
-    const questions = getFilteredQuestions();
+  function startChapterQuiz(chapterName) {
+    const questions = getOrderedChapterQuestions(chapterName);
     if (questions.length === 0) {
       alert('لا توجد أسئلة لهذا الفصل.');
       return;
@@ -86,6 +140,28 @@
     const timerTotalSeconds = minutes * 60;
 
     engine = new QuizEngine(questions, {
+      timerEnabled,
+      timerTotalSeconds,
+      timerRemainingSeconds: timerTotalSeconds
+    });
+
+    persist();
+    startTimerIfNeeded();
+    UI.showScreen('quizScreen');
+    renderCurrent();
+  }
+
+  function startAllQuiz() {
+    if (questionBank.length === 0) {
+      alert('لا توجد أسئلة متاحة.');
+      return;
+    }
+
+    const timerEnabled = UI.els.timerToggle.checked;
+    const minutes = parseInt(UI.els.timerMinutes.value, 10) || 30;
+    const timerTotalSeconds = minutes * 60;
+
+    engine = new QuizEngine(questionBank, {
       timerEnabled,
       timerTotalSeconds,
       timerRemainingSeconds: timerTotalSeconds
@@ -126,21 +202,29 @@
       UI.setTimerDisplay(engine.timerRemainingSeconds, true);
       if (engine.timerRemainingSeconds <= 0) {
         clearInterval(timerInterval);
-        finishQuiz();
+        finishCurrentQuiz();
       } else {
         persist();
       }
     }, 1000);
   }
 
-  function finishQuiz() {
+  function finishCurrentQuiz() {
     clearInterval(timerInterval);
     engine.finish();
     const results = engine.computeResults();
     Storage.clearQuizState();
-    UI.els.resumeBtn.classList.add('hidden');
-    UI.renderResults(results);
-    UI.showScreen('resultScreen');
+
+    if (quizMode === 'chapter') {
+      // عرض نتائج الفصل
+      UI.renderChapterResults(allChapters[currentChapterIndex], results);
+      UI.showScreen('chapterResultScreen');
+    } else {
+      // عرض النتائج النهائية (اختبار شامل)
+      UI.els.resumeBtn.classList.add('hidden');
+      UI.renderResults(results);
+      UI.showScreen('resultScreen');
+    }
   }
 
   function persist() {

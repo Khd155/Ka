@@ -17,8 +17,8 @@
     <!-- شاشة البداية -->
     <section id="startScreen" class="screen active">
       <div class="card start-card">
-        <h2>أهلاً بك في اختبار الكيمياء</h2>
-        <p class="muted">عدد الأسئلة: <span id="totalQuestionsLabel">0</span> سؤال (اختيار من متعدد وصح/خطأ)</p>
+        <h2>اختبار الكيمياء التفاعلي</h2>
+        <p class="muted">اختر نمط الاختبار</p>
 
         <div class="start-options">
           <label class="option-row">
@@ -29,18 +29,23 @@
             <label for="timerMinutes">المدة بالدقائق:</label>
             <input type="number" id="timerMinutes" min="1" max="180" value="30">
           </div>
-
-          <label class="option-row">
-            <span>اختر الفصل:</span>
-            <select id="chapterSelect">
-              <option value="all">جميع الفصول</option>
-            </select>
-          </label>
         </div>
 
         <div class="start-actions">
-          <button id="startBtn" class="btn btn-primary">ابدأ الاختبار</button>
+          <button id="startByChapterBtn" class="btn btn-primary">اختبار بالفصول (موصى به)</button>
+          <button id="startAllBtn" class="btn btn-secondary">اختبار شامل (جميع الفصول)</button>
           <button id="resumeBtn" class="btn btn-secondary hidden">استكمال الاختبار السابق</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- شاشة اختيار الفصول -->
+    <section id="chapterScreen" class="screen">
+      <div class="card">
+        <h2 style="text-align: center; margin-bottom: 2rem; background: linear-gradient(135deg, #2563eb, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">اختر الفصل</h2>
+        <div class="chapters-grid" id="chaptersGrid"></div>
+        <div style="text-align: center;">
+          <button id="backFromChaptersBtn" class="btn btn-secondary">العودة</button>
         </div>
       </div>
     </section>
@@ -70,6 +75,33 @@
         <button id="prevBtn" class="btn btn-secondary">السابق</button>
         <button id="finishBtn" class="btn btn-danger">إنهاء الاختبار</button>
         <button id="nextBtn" class="btn btn-primary">التالي</button>
+      </div>
+    </section>
+
+    <!-- شاشة نتائج الفصل -->
+    <section id="chapterResultScreen" class="screen">
+      <div class="card result-card">
+        <h2 id="chapterResultTitle">نتيجة الفصل</h2>
+        <div class="score-circle">
+          <span id="chapterScoreFraction">0 / 0</span>
+          <span id="chapterScorePercent" class="score-percent">0%</span>
+        </div>
+        <div class="score-stats">
+          <div class="stat correct">
+            <span class="stat-num" id="chapterCorrectCount">0</span>
+            <span class="stat-label">إجابات صحيحة</span>
+          </div>
+          <div class="stat wrong">
+            <span class="stat-num" id="chapterWrongCount">0</span>
+            <span class="stat-label">إجابات خاطئة</span>
+          </div>
+        </div>
+
+        <div class="result-actions">
+          <button id="nextChapterBtn" class="btn btn-primary">الفصل التالي</button>
+          <button id="retakeChapterBtn" class="btn btn-secondary">إعادة هذا الفصل</button>
+          <button id="backToChaptersBtn" class="btn btn-secondary">اختر فصل آخر</button>
+        </div>
       </div>
     </section>
 

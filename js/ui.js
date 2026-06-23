@@ -5,16 +5,20 @@ const UI = {
   cacheEls() {
     this.els = {
       startScreen: document.getElementById('startScreen'),
+      chapterScreen: document.getElementById('chapterScreen'),
       quizScreen: document.getElementById('quizScreen'),
+      chapterResultScreen: document.getElementById('chapterResultScreen'),
       resultScreen: document.getElementById('resultScreen'),
 
-      totalQuestionsLabel: document.getElementById('totalQuestionsLabel'),
-      chapterSelect: document.getElementById('chapterSelect'),
       timerToggle: document.getElementById('timerToggle'),
       timerInputWrap: document.getElementById('timerInputWrap'),
       timerMinutes: document.getElementById('timerMinutes'),
-      startBtn: document.getElementById('startBtn'),
+      startByChapterBtn: document.getElementById('startByChapterBtn'),
+      startAllBtn: document.getElementById('startAllBtn'),
       resumeBtn: document.getElementById('resumeBtn'),
+
+      chaptersGrid: document.getElementById('chaptersGrid'),
+      backFromChaptersBtn: document.getElementById('backFromChaptersBtn'),
 
       questionCounter: document.getElementById('questionCounter'),
       timerDisplay: document.getElementById('timerDisplay'),
@@ -37,29 +41,39 @@ const UI = {
       retakeBtn: document.getElementById('retakeBtn'),
       reviewContainer: document.getElementById('reviewContainer'),
 
+      chapterResultTitle: document.getElementById('chapterResultTitle'),
+      chapterScoreFraction: document.getElementById('chapterScoreFraction'),
+      chapterScorePercent: document.getElementById('chapterScorePercent'),
+      chapterCorrectCount: document.getElementById('chapterCorrectCount'),
+      chapterWrongCount: document.getElementById('chapterWrongCount'),
+      nextChapterBtn: document.getElementById('nextChapterBtn'),
+      retakeChapterBtn: document.getElementById('retakeChapterBtn'),
+      backToChaptersBtn: document.getElementById('backToChaptersBtn'),
+
       darkModeToggle: document.getElementById('darkModeToggle')
     };
   },
 
   showScreen(name) {
-    ['startScreen', 'quizScreen', 'resultScreen'].forEach(key => {
+    ['startScreen', 'chapterScreen', 'quizScreen', 'chapterResultScreen', 'resultScreen'].forEach(key => {
       this.els[key].classList.toggle('active', key === name);
     });
   },
 
-  populateChapters(chapters) {
-    const select = this.els.chapterSelect;
-    select.innerHTML = '<option value="all">جميع الفصول</option>';
+  populateChapters(chapters, onChapterSelect) {
+    this.els.chaptersGrid.innerHTML = '';
     chapters.forEach(ch => {
-      const opt = document.createElement('option');
-      opt.value = ch;
-      opt.textContent = ch;
-      select.appendChild(opt);
+      const btn = document.createElement('button');
+      btn.className = 'chapter-btn';
+      btn.innerHTML = `
+        <h3>${ch}</h3>
+        <div class="chapter-stats">
+          <span>اضغط للبدء</span>
+        </div>
+      `;
+      btn.addEventListener('click', () => onChapterSelect(ch));
+      this.els.chaptersGrid.appendChild(btn);
     });
-  },
-
-  setTotalQuestionsLabel(count) {
-    this.els.totalQuestionsLabel.textContent = count;
   },
 
   setDarkMode(isDark) {
@@ -86,8 +100,18 @@ const UI = {
     const container = this.els.optionsContainer;
     container.innerHTML = '';
 
-    if (q.type === 'mcq' || q.type === 'matching') {
+    if (q.type === 'mcq') {
       container.className = 'options-container';
+      q.options.forEach((optText, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = optText;
+        if (userAnswer === idx) btn.classList.add('selected');
+        btn.addEventListener('click', () => onOptionSelected(idx));
+        container.appendChild(btn);
+      });
+    } else if (q.type === 'matching') {
+      container.className = 'options-container matching-grid';
       q.options.forEach((optText, idx) => {
         const btn = document.createElement('button');
         btn.className = 'option-btn';
@@ -139,6 +163,14 @@ const UI = {
     this.els.wrongCount.textContent = results.wrong;
     this.els.reviewContainer.innerHTML = '';
     this.els.reviewContainer.classList.add('hidden');
+  },
+
+  renderChapterResults(chapterName, results) {
+    this.els.chapterResultTitle.textContent = `نتيجة: ${chapterName}`;
+    this.els.chapterScoreFraction.textContent = `${results.correct} / ${results.total}`;
+    this.els.chapterScorePercent.textContent = `${results.percent}%`;
+    this.els.chapterCorrectCount.textContent = results.correct;
+    this.els.chapterWrongCount.textContent = results.wrong;
   },
 
   renderReview(details, onlyWrong) {
