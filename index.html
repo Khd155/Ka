@@ -167,8 +167,6 @@
             <button id="retakeChapterBtn" class="btn btn-ghost">إعادة هذا الفصل</button>
             <button id="backToChaptersBtn" class="btn btn-text">اختر فصلاً آخر</button>
           </div>
-
-          <div id="chapterReviewContainer" class="review-container hidden"></div>
         </div>
       </section>
 
@@ -201,10 +199,16 @@
             <button id="reviewAllBtn" class="btn btn-ghost">عرض جميع الأسئلة مع الحلول</button>
             <button id="retakeBtn" class="btn btn-primary">إعادة الاختبار</button>
           </div>
-          <p class="review-note">ملاحظة: المراجعة التفصيلية تشمل أسئلة الاختيار من متعدد وصح/خطأ فقط، ونتيجة المزاوجة معروضة أعلاه بشكل مختصر.</p>
-
-          <div id="reviewContainer" class="review-container hidden"></div>
         </div>
+      </section>
+
+      <!-- شاشة المراجعة التفصيلية -->
+      <section id="reviewScreen" class="screen">
+        <div class="section-head">
+          <button id="backFromReviewBtn" class="back-btn" aria-label="العودة">›</button>
+          <h2 class="section-title">مراجعة الأسئلة</h2>
+        </div>
+        <div id="reviewListContainer" class="review-list"></div>
       </section>
 
     </main>

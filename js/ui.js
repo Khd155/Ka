@@ -10,6 +10,7 @@ const UI = {
       matchingScreen: document.getElementById('matchingScreen'),
       chapterResultScreen: document.getElementById('chapterResultScreen'),
       resultScreen: document.getElementById('resultScreen'),
+      reviewScreen: document.getElementById('reviewScreen'),
 
       timerToggle: document.getElementById('timerToggle'),
       timerInputWrap: document.getElementById('timerInputWrap'),
@@ -40,7 +41,6 @@ const UI = {
       reviewWrongBtn: document.getElementById('reviewWrongBtn'),
       reviewAllBtn: document.getElementById('reviewAllBtn'),
       retakeBtn: document.getElementById('retakeBtn'),
-      reviewContainer: document.getElementById('reviewContainer'),
 
       chapterResultTitle: document.getElementById('chapterResultTitle'),
       chapterScoreFraction: document.getElementById('chapterScoreFraction'),
@@ -52,7 +52,9 @@ const UI = {
       backToChaptersBtn: document.getElementById('backToChaptersBtn'),
       chapterReviewWrongBtn: document.getElementById('chapterReviewWrongBtn'),
       chapterReviewAllBtn: document.getElementById('chapterReviewAllBtn'),
-      chapterReviewContainer: document.getElementById('chapterReviewContainer'),
+
+      backFromReviewBtn: document.getElementById('backFromReviewBtn'),
+      reviewListContainer: document.getElementById('reviewListContainer'),
 
       matchingSummary: document.getElementById('matchingSummary'),
 
@@ -67,7 +69,7 @@ const UI = {
   },
 
   showScreen(name) {
-    ['startScreen', 'chapterScreen', 'quizScreen', 'matchingScreen', 'chapterResultScreen', 'resultScreen'].forEach(key => {
+    ['startScreen', 'chapterScreen', 'quizScreen', 'matchingScreen', 'chapterResultScreen', 'resultScreen', 'reviewScreen'].forEach(key => {
       const isActive = key === name;
       this.els[key].classList.toggle('active', isActive);
       if (isActive) {
@@ -330,8 +332,6 @@ const UI = {
     this.els.scorePercent.textContent = `${results.percent}%`;
     this.els.correctCount.textContent = results.correct;
     this.els.wrongCount.textContent = results.wrong;
-    this.els.reviewContainer.innerHTML = '';
-    this.els.reviewContainer.classList.add('hidden');
     document.getElementById('resultRing').style.setProperty('--pct', results.percent);
 
     const matchingDetails = (results.details || []).filter(d => d.question.type === 'matching');
@@ -351,14 +351,11 @@ const UI = {
     this.els.chapterCorrectCount.textContent = results.correct;
     this.els.chapterWrongCount.textContent = results.wrong;
     document.getElementById('chapterResultRing').style.setProperty('--pct', results.percent);
-    this.els.chapterReviewContainer.innerHTML = '';
-    this.els.chapterReviewContainer.classList.add('hidden');
   },
 
-  renderChapterReview(details, onlyWrong) {
-    const nonMatching = details.filter(d => d.question.type !== 'matching');
-    const list = onlyWrong ? nonMatching.filter(d => !d.isCorrect) : nonMatching;
-    const container = this.els.chapterReviewContainer;
+  renderReviewScreen(details, onlyWrong) {
+    const list = onlyWrong ? details.filter(d => !d.isCorrect) : details;
+    const container = this.els.reviewListContainer;
     container.innerHTML = '';
 
     if (list.length === 0) {
@@ -401,56 +398,7 @@ const UI = {
       container.appendChild(item);
     });
 
-    container.classList.remove('hidden');
-  },
-
-  renderReview(details, onlyWrong) {
-    const nonMatching = details.filter(d => d.question.type !== 'matching');
-    const list = onlyWrong ? nonMatching.filter(d => !d.isCorrect) : nonMatching;
-    const container = this.els.reviewContainer;
-    container.innerHTML = '';
-
-    if (list.length === 0) {
-      const p = document.createElement('p');
-      p.textContent = 'لا توجد إجابات خاطئة. أحسنت!';
-      container.appendChild(p);
-    }
-
-    list.forEach((d, i) => {
-      const item = document.createElement('div');
-      item.className = 'review-item';
-
-      const qTitle = document.createElement('div');
-      qTitle.className = 'review-q';
-      qTitle.textContent = `${i + 1}. ${d.question.question}`;
-      item.appendChild(qTitle);
-
-      if (d.question.image) {
-        const img = document.createElement('img');
-        img.src = d.question.image;
-        img.className = 'review-image';
-        item.appendChild(img);
-      }
-
-      const userText = this.formatAnswer(d.question, d.userAnswer);
-      const correctText = this.formatAnswer(d.question, d.question.answer);
-
-      const userRow = document.createElement('div');
-      userRow.className = 'review-answer-row';
-      userRow.innerHTML = `إجابتك: <span class="${d.isCorrect ? 'label-correct' : 'label-wrong'}">${userText}</span>`;
-      item.appendChild(userRow);
-
-      if (!d.isCorrect) {
-        const correctRow = document.createElement('div');
-        correctRow.className = 'review-answer-row';
-        correctRow.innerHTML = `الإجابة الصحيحة: <span class="label-correct">${correctText}</span>`;
-        item.appendChild(correctRow);
-      }
-
-      container.appendChild(item);
-    });
-
-    container.classList.remove('hidden');
+    this.showScreen('reviewScreen');
   },
 
   formatAnswer(question, value) {

@@ -13,6 +13,7 @@
   let currentNonMatchingResults = null;
   let currentChapterResults = null;
   let globalAggregate = emptyResults();
+  let reviewBackScreen = 'resultScreen';
 
   const API_BASE = 'https://chemistry-quiz.khaled-kharmi.workers.dev';
 
@@ -145,10 +146,15 @@
 
     // أزرار المراجعة (للاختبار الشامل)
     UI.els.reviewWrongBtn.addEventListener('click', () => {
-      UI.renderReview(globalAggregate.details, true);
+      reviewBackScreen = 'resultScreen';
+      UI.renderReviewScreen(globalAggregate.details, true);
     });
     UI.els.reviewAllBtn.addEventListener('click', () => {
-      UI.renderReview(globalAggregate.details, false);
+      reviewBackScreen = 'resultScreen';
+      UI.renderReviewScreen(globalAggregate.details, false);
+    });
+    UI.els.backFromReviewBtn.addEventListener('click', () => {
+      UI.showScreen(reviewBackScreen);
     });
     UI.els.retakeBtn.addEventListener('click', () => {
       Storage.clearQuizState();
@@ -182,12 +188,14 @@
     // أزرار المراجعة لنتائج الفصل
     UI.els.chapterReviewWrongBtn.addEventListener('click', () => {
       if (currentChapterResults) {
-        UI.renderChapterReview(currentChapterResults.details, true);
+        reviewBackScreen = 'chapterResultScreen';
+        UI.renderReviewScreen(currentChapterResults.details, true);
       }
     });
     UI.els.chapterReviewAllBtn.addEventListener('click', () => {
       if (currentChapterResults) {
-        UI.renderChapterReview(currentChapterResults.details, false);
+        reviewBackScreen = 'chapterResultScreen';
+        UI.renderReviewScreen(currentChapterResults.details, false);
       }
     });
   }
