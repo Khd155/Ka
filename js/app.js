@@ -14,6 +14,31 @@
   let currentChapterResults = null;
   let globalAggregate = emptyResults();
 
+  // Track page view
+  function trackPageView() {
+    fetch('/api/track-view', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({})
+    }).catch(() => {});
+  }
+
+  // Submit result to backend
+  function submitResultToBackend(results) {
+    fetch('/api/submit-result', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        quizMode,
+        chapter: currentChapterName,
+        correct: results.correct,
+        wrong: results.wrong,
+        total: results.total,
+        percent: results.percent
+      })
+    }).catch(() => {});
+  }
+
   function emptyResults() {
     return { correct: 0, wrong: 0, total: 0, percent: 0, details: [] };
   }
@@ -36,6 +61,7 @@
   }
 
   function init() {
+    trackPageView();
     UI.cacheEls();
     initDarkMode();
 
@@ -291,6 +317,8 @@
 
   // ينتهي الفصل بالكامل: يعرض نتيجة الفصل أو ينتقل للفصل التالي ضمن الاختبار الشامل
   function completeChapter(results) {
+    submitResultToBackend(results);
+
     if (quizMode === 'chapter') {
       currentChapterResults = results;
       UI.renderChapterResults(currentChapterName, results);

@@ -1,0 +1,18 @@
+name = "chemistry-quiz"
+main = "src/worker.js"
+compatibility_date = "2024-06-12"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "chemistry_quiz"
+database_id = "your-db-id"
+
+[env.production]
+name = "chemistry-quiz-prod"
+route = "https://chemistry.example.com/*"
+zone_id = "your-zone-id"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "chemistry_quiz"
+database_id = "your-db-id"

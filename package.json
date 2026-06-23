@@ -1,0 +1,23 @@
+{
+  "name": "chemistry-quiz",
+  "version": "1.0.0",
+  "description": "تطبيق اختبار الكيمياء التفاعلي مع تتبع النتائج",
+  "main": "src/worker.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:create": "wrangler d1 create chemistry_quiz",
+    "db:execute": "wrangler d1 execute chemistry_quiz --command"
+  },
+  "keywords": [
+    "chemistry",
+    "quiz",
+    "cloudflare",
+    "d1"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}
