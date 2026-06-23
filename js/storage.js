@@ -23,6 +23,8 @@ const Storage = {
   },
 
   loadDarkMode() {
-    return localStorage.getItem(this.KEYS.DARK_MODE) === '1';
+    const raw = localStorage.getItem(this.KEYS.DARK_MODE);
+    if (raw === null) return true; // الوضع الداكن هو الافتراضي
+    return raw === '1';
   }
 };

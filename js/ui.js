@@ -7,6 +7,7 @@ const UI = {
       startScreen: document.getElementById('startScreen'),
       chapterScreen: document.getElementById('chapterScreen'),
       quizScreen: document.getElementById('quizScreen'),
+      matchingScreen: document.getElementById('matchingScreen'),
       chapterResultScreen: document.getElementById('chapterResultScreen'),
       resultScreen: document.getElementById('resultScreen'),
 
@@ -50,12 +51,18 @@ const UI = {
       retakeChapterBtn: document.getElementById('retakeChapterBtn'),
       backToChaptersBtn: document.getElementById('backToChaptersBtn'),
 
-      darkModeToggle: document.getElementById('darkModeToggle')
+      darkModeToggle: document.getElementById('darkModeToggle'),
+
+      matchingProgress: document.getElementById('matchingProgress'),
+      matchingChapterBadge: document.getElementById('matchingChapterBadge'),
+      matchingTerms: document.getElementById('matchingTerms'),
+      matchingBank: document.getElementById('matchingBank'),
+      matchingSubmitBtn: document.getElementById('matchingSubmitBtn')
     };
   },
 
   showScreen(name) {
-    ['startScreen', 'chapterScreen', 'quizScreen', 'chapterResultScreen', 'resultScreen'].forEach(key => {
+    ['startScreen', 'chapterScreen', 'quizScreen', 'matchingScreen', 'chapterResultScreen', 'resultScreen'].forEach(key => {
       const isActive = key === name;
       this.els[key].classList.toggle('active', isActive);
       if (isActive) {
@@ -116,29 +123,6 @@ const UI = {
         btn.addEventListener('click', () => onOptionSelected(idx));
         container.appendChild(btn);
       });
-    } else if (q.type === 'matching') {
-      container.className = 'options-container matching-field';
-      const select = document.createElement('select');
-      select.className = 'matching-select';
-
-      const placeholder = document.createElement('option');
-      placeholder.textContent = 'اختر الكلمة المناسبة...';
-      placeholder.value = '';
-      placeholder.disabled = true;
-      placeholder.selected = userAnswer === undefined;
-      select.appendChild(placeholder);
-
-      q.options.forEach((optText, idx) => {
-        const opt = document.createElement('option');
-        opt.value = idx;
-        opt.textContent = optText;
-        if (userAnswer === idx) opt.selected = true;
-        select.appendChild(opt);
-      });
-
-      select.classList.toggle('answered', userAnswer !== undefined);
-      select.addEventListener('change', () => onOptionSelected(parseInt(select.value, 10)));
-      container.appendChild(select);
     } else {
       container.className = 'options-container tf-options';
       [{ label: 'صحيح', value: true }, { label: 'خطأ', value: false }].forEach(opt => {
@@ -172,6 +156,96 @@ const UI = {
   updateNavButtons(engine) {
     this.els.prevBtn.disabled = !engine.hasPrev();
     this.els.nextBtn.textContent = engine.hasNext() ? 'التالي' : 'إنهاء';
+  },
+
+  renderMatchingScreen(chapterName, questions, answers) {
+    this.els.matchingChapterBadge.textContent = chapterName;
+    this.updateMatchingProgress(questions, answers);
+
+    const termsCol = this.els.matchingTerms;
+    const bankCol = this.els.matchingBank;
+    termsCol.innerHTML = '';
+    bankCol.innerHTML = '';
+
+    const bank = questions[0] ? questions[0].options : [];
+    let selectedWordEl = null;
+
+    const assign = (qid, idx, slotEl) => {
+      answers[qid] = idx;
+      slotEl.textContent = bank[idx];
+      slotEl.classList.add('filled');
+      this.updateMatchingProgress(questions, answers);
+    };
+
+    questions.forEach((q, qIdx) => {
+      const row = document.createElement('div');
+      row.className = 'matching-row';
+
+      const term = document.createElement('div');
+      term.className = 'matching-term';
+      term.textContent = `${qIdx + 1}. ${q.question}`;
+      row.appendChild(term);
+
+      const slot = document.createElement('div');
+      slot.className = 'matching-slot';
+      const isFilled = answers[q.id] !== undefined;
+      slot.textContent = isFilled ? bank[answers[q.id]] : 'اسحب الإجابة هنا';
+      slot.classList.toggle('filled', isFilled);
+
+      slot.addEventListener('dragover', e => e.preventDefault());
+      slot.addEventListener('drop', e => {
+        e.preventDefault();
+        const idx = parseInt(e.dataTransfer.getData('text/plain'), 10);
+        assign(q.id, idx, slot);
+      });
+      slot.addEventListener('click', () => {
+        if (slot.classList.contains('filled')) {
+          delete answers[q.id];
+          slot.textContent = 'اسحب الإجابة هنا';
+          slot.classList.remove('filled');
+          this.updateMatchingProgress(questions, answers);
+          return;
+        }
+        if (selectedWordEl) {
+          const idx = parseInt(selectedWordEl.dataset.idx, 10);
+          assign(q.id, idx, slot);
+          selectedWordEl.classList.remove('active');
+          selectedWordEl = null;
+        }
+      });
+
+      row.appendChild(slot);
+      termsCol.appendChild(row);
+    });
+
+    bank.forEach((word, idx) => {
+      const wordEl = document.createElement('div');
+      wordEl.className = 'matching-word';
+      wordEl.draggable = true;
+      wordEl.dataset.idx = idx;
+      wordEl.textContent = word;
+
+      wordEl.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', idx);
+      });
+      wordEl.addEventListener('click', () => {
+        if (selectedWordEl === wordEl) {
+          wordEl.classList.remove('active');
+          selectedWordEl = null;
+          return;
+        }
+        if (selectedWordEl) selectedWordEl.classList.remove('active');
+        selectedWordEl = wordEl;
+        wordEl.classList.add('active');
+      });
+
+      bankCol.appendChild(wordEl);
+    });
+  },
+
+  updateMatchingProgress(questions, answers) {
+    const answeredCount = questions.filter(q => answers[q.id] !== undefined).length;
+    this.els.matchingProgress.textContent = `${answeredCount} / ${questions.length}`;
   },
 
   setTimerDisplay(seconds, visible) {
