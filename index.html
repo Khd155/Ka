@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اختبار الكيمياء التفاعلي</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-container">
+
+    <header class="app-header">
+      <h1 class="app-title">اختبار الكيمياء التفاعلي</h1>
+      <button id="darkModeToggle" class="icon-btn" title="تبديل الوضع الليلي" aria-label="تبديل الوضع الليلي">🌙</button>
+    </header>
+
+    <!-- شاشة البداية -->
+    <section id="startScreen" class="screen active">
+      <div class="card start-card">
+        <h2>أهلاً بك في اختبار الكيمياء</h2>
+        <p class="muted">عدد الأسئلة: <span id="totalQuestionsLabel">0</span> سؤال (اختيار من متعدد وصح/خطأ)</p>
+
+        <div class="start-options">
+          <label class="option-row">
+            <input type="checkbox" id="timerToggle">
+            <span>تفعيل المؤقت (وقت محدد للاختبار)</span>
+          </label>
+          <div id="timerInputWrap" class="option-row hidden">
+            <label for="timerMinutes">المدة بالدقائق:</label>
+            <input type="number" id="timerMinutes" min="1" max="180" value="30">
+          </div>
+
+          <label class="option-row">
+            <span>اختر الفصل:</span>
+            <select id="chapterSelect">
+              <option value="all">جميع الفصول</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="start-actions">
+          <button id="startBtn" class="btn btn-primary">ابدأ الاختبار</button>
+          <button id="resumeBtn" class="btn btn-secondary hidden">استكمال الاختبار السابق</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- شاشة السؤال -->
+    <section id="quizScreen" class="screen">
+      <div class="quiz-top">
+        <div class="progress-info">
+          <span id="questionCounter">1 من 30</span>
+          <span id="timerDisplay" class="timer hidden">00:00</span>
+        </div>
+        <div class="progress-bar-track">
+          <div id="progressBarFill" class="progress-bar-fill"></div>
+        </div>
+      </div>
+
+      <div class="card question-card">
+        <div class="chapter-badge" id="chapterBadge"></div>
+        <h2 id="questionText" class="question-text"></h2>
+        <div id="questionImageWrap" class="question-image-wrap hidden">
+          <img id="questionImage" alt="صورة توضيحية للسؤال" class="question-image">
+        </div>
+        <div id="optionsContainer" class="options-container"></div>
+      </div>
+
+      <div class="quiz-nav">
+        <button id="prevBtn" class="btn btn-secondary">السابق</button>
+        <button id="finishBtn" class="btn btn-danger">إنهاء الاختبار</button>
+        <button id="nextBtn" class="btn btn-primary">التالي</button>
+      </div>
+    </section>
+
+    <!-- شاشة النتائج -->
+    <section id="resultScreen" class="screen">
+      <div class="card result-card">
+        <h2>نتيجتك النهائية</h2>
+        <div class="score-circle">
+          <span id="scoreFraction">0 / 0</span>
+          <span id="scorePercent" class="score-percent">0%</span>
+        </div>
+        <div class="score-stats">
+          <div class="stat correct">
+            <span class="stat-num" id="correctCount">0</span>
+            <span class="stat-label">إجابات صحيحة</span>
+          </div>
+          <div class="stat wrong">
+            <span class="stat-num" id="wrongCount">0</span>
+            <span class="stat-label">إجابات خاطئة</span>
+          </div>
+        </div>
+
+        <div class="result-actions">
+          <button id="reviewWrongBtn" class="btn btn-secondary">مراجعة الأخطاء فقط</button>
+          <button id="reviewAllBtn" class="btn btn-secondary">عرض جميع الأسئلة مع الحلول</button>
+          <button id="retakeBtn" class="btn btn-primary">إعادة الاختبار</button>
+        </div>
+
+        <div id="reviewContainer" class="review-container hidden"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="js/storage.js"></script>
+  <script src="js/quiz-logic.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
