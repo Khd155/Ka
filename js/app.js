@@ -14,9 +14,11 @@
   let currentChapterResults = null;
   let globalAggregate = emptyResults();
 
+  const API_BASE = 'https://chemistry-quiz.khaled-kharmi.workers.dev';
+
   // Track page view
   function trackPageView() {
-    fetch('/api/track-view', {
+    fetch(API_BASE + '/api/track-view', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({})
@@ -25,7 +27,7 @@
 
   // Submit result to backend
   function submitResultToBackend(results) {
-    fetch('/api/submit-result', {
+    fetch(API_BASE + '/api/submit-result', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

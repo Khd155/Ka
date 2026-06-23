@@ -1,9 +1,19 @@
 const ADMIN_PASSWORD = 'khd2024';
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+};
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const path = url.pathname;
+
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { headers: CORS_HEADERS });
+    }
 
     // Initialize database on first request
     if (!env.DB) {
@@ -84,9 +94,15 @@ async function trackPageView(db) {
     await db.prepare(`
       INSERT INTO page_views (ip) VALUES (?)
     `).bind(ip).run();
-    return new Response(JSON.stringify({ success: true }), { status: 200 });
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json', ...CORS_HEADERS }
+    });
   } catch (e) {
-    return new Response(JSON.stringify({ error: e.message }), { status: 500 });
+    return new Response(JSON.stringify({ error: e.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json', ...CORS_HEADERS }
+    });
   }
 }
 
@@ -100,9 +116,15 @@ async function submitResult(db, data) {
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `).bind(quizMode, chapter, correct, wrong, total, percent, ip).run();
 
-    return new Response(JSON.stringify({ success: true }), { status: 200 });
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json', ...CORS_HEADERS }
+    });
   } catch (e) {
-    return new Response(JSON.stringify({ error: e.message }), { status: 500 });
+    return new Response(JSON.stringify({ error: e.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json', ...CORS_HEADERS }
+    });
   }
 }
 
