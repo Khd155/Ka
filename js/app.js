@@ -75,10 +75,13 @@
       renderCurrent();
     });
     UI.els.nextBtn.addEventListener('click', () => {
-      engine.goNext();
-      renderCurrent();
+      if (engine.hasNext()) {
+        engine.goNext();
+        renderCurrent();
+      } else {
+        finishCurrentQuiz();
+      }
     });
-    UI.els.finishBtn.addEventListener('click', finishCurrentQuiz);
 
     // أزرار المراجعة
     UI.els.reviewWrongBtn.addEventListener('click', () => {

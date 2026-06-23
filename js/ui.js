@@ -31,7 +31,6 @@ const UI = {
       questionCardInner: document.getElementById('questionCardInner'),
       prevBtn: document.getElementById('prevBtn'),
       nextBtn: document.getElementById('nextBtn'),
-      finishBtn: document.getElementById('finishBtn'),
 
       scoreFraction: document.getElementById('scoreFraction'),
       scorePercent: document.getElementById('scorePercent'),
@@ -172,8 +171,7 @@ const UI = {
 
   updateNavButtons(engine) {
     this.els.prevBtn.disabled = !engine.hasPrev();
-    this.els.nextBtn.textContent = engine.hasNext() ? 'التالي' : 'الأخير';
-    this.els.nextBtn.disabled = !engine.hasNext();
+    this.els.nextBtn.textContent = engine.hasNext() ? 'التالي' : 'إنهاء';
   },
 
   setTimerDisplay(seconds, visible) {
