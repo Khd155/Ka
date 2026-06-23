@@ -116,27 +116,46 @@ const UI = {
 
     const userAnswer = engine.getAnswer();
     const container = this.els.optionsContainer;
-    container.innerHTML = '';
 
-    if (q.type === 'mcq') {
-      container.className = 'options-container';
-      q.options.forEach((optText, idx) => {
-        const btn = document.createElement('button');
-        btn.className = 'option-btn';
-        btn.textContent = optText;
-        if (userAnswer === idx) btn.classList.add('selected');
-        btn.addEventListener('click', () => onOptionSelected(idx));
-        container.appendChild(btn);
-      });
+    // Check if we need to rebuild (question type changed or first render)
+    const oldBtns = container.querySelectorAll('.option-btn');
+    const needsRebuild = oldBtns.length === 0 ||
+      (q.type === 'mcq' && oldBtns.length !== q.options.length) ||
+      (q.type === 'tf' && oldBtns.length !== 2);
+
+    if (needsRebuild) {
+      container.innerHTML = '';
+
+      if (q.type === 'mcq') {
+        container.className = 'options-container';
+        q.options.forEach((optText, idx) => {
+          const btn = document.createElement('button');
+          btn.className = 'option-btn';
+          btn.textContent = optText;
+          if (userAnswer === idx) btn.classList.add('selected');
+          btn.addEventListener('click', () => onOptionSelected(idx));
+          container.appendChild(btn);
+        });
+      } else {
+        container.className = 'options-container tf-options';
+        [{ label: 'صحيح', value: true }, { label: 'خطأ', value: false }].forEach(opt => {
+          const btn = document.createElement('button');
+          btn.className = 'option-btn';
+          btn.textContent = opt.label;
+          if (userAnswer === opt.value) btn.classList.add('selected');
+          btn.addEventListener('click', () => onOptionSelected(opt.value));
+          container.appendChild(btn);
+        });
+      }
     } else {
-      container.className = 'options-container tf-options';
-      [{ label: 'صحيح', value: true }, { label: 'خطأ', value: false }].forEach(opt => {
-        const btn = document.createElement('button');
-        btn.className = 'option-btn';
-        btn.textContent = opt.label;
-        if (userAnswer === opt.value) btn.classList.add('selected');
-        btn.addEventListener('click', () => onOptionSelected(opt.value));
-        container.appendChild(btn);
+      // Just update selected state
+      oldBtns.forEach((btn, idx) => {
+        if (q.type === 'mcq') {
+          btn.classList.toggle('selected', userAnswer === idx);
+        } else {
+          const isTrue = idx === 0;
+          btn.classList.toggle('selected', userAnswer === isTrue);
+        }
       });
     }
 
