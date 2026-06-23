@@ -86,7 +86,7 @@ const UI = {
     const container = this.els.optionsContainer;
     container.innerHTML = '';
 
-    if (q.type === 'mcq') {
+    if (q.type === 'mcq' || q.type === 'matching') {
       container.className = 'options-container';
       q.options.forEach((optText, idx) => {
         const btn = document.createElement('button');
