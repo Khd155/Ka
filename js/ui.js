@@ -51,6 +51,8 @@ const UI = {
       retakeChapterBtn: document.getElementById('retakeChapterBtn'),
       backToChaptersBtn: document.getElementById('backToChaptersBtn'),
 
+      matchingSummary: document.getElementById('matchingSummary'),
+
       darkModeToggle: document.getElementById('darkModeToggle'),
 
       matchingProgress: document.getElementById('matchingProgress'),
@@ -169,11 +171,35 @@ const UI = {
 
     const bank = questions[0] ? questions[0].options : [];
     let selectedWordEl = null;
+    const wordEls = [];
+
+    const setWordUsed = (idx, used) => {
+      const el = wordEls[idx];
+      if (!el) return;
+      el.classList.toggle('used', used);
+      el.draggable = !used;
+      if (used && selectedWordEl === el) {
+        el.classList.remove('active');
+        selectedWordEl = null;
+      }
+    };
 
     const assign = (qid, idx, slotEl) => {
+      const prevIdx = answers[qid];
+      if (prevIdx !== undefined) setWordUsed(prevIdx, false);
       answers[qid] = idx;
       slotEl.textContent = bank[idx];
       slotEl.classList.add('filled');
+      setWordUsed(idx, true);
+      this.updateMatchingProgress(questions, answers);
+    };
+
+    const clearSlot = (qid, slotEl) => {
+      const prevIdx = answers[qid];
+      if (prevIdx !== undefined) setWordUsed(prevIdx, false);
+      delete answers[qid];
+      slotEl.textContent = 'اضغط أو اسحب الإجابة هنا';
+      slotEl.classList.remove('filled');
       this.updateMatchingProgress(questions, answers);
     };
 
@@ -189,27 +215,28 @@ const UI = {
       const slot = document.createElement('div');
       slot.className = 'matching-slot';
       const isFilled = answers[q.id] !== undefined;
-      slot.textContent = isFilled ? bank[answers[q.id]] : 'اسحب الإجابة هنا';
+      slot.textContent = isFilled ? bank[answers[q.id]] : 'اضغط أو اسحب الإجابة هنا';
       slot.classList.toggle('filled', isFilled);
 
       slot.addEventListener('dragover', e => e.preventDefault());
       slot.addEventListener('drop', e => {
         e.preventDefault();
         const idx = parseInt(e.dataTransfer.getData('text/plain'), 10);
+        if (Number.isNaN(idx)) return;
+        const el = wordEls[idx];
+        if (el && el.classList.contains('used') && answers[q.id] !== idx) return;
         assign(q.id, idx, slot);
       });
       slot.addEventListener('click', () => {
         if (slot.classList.contains('filled')) {
-          delete answers[q.id];
-          slot.textContent = 'اسحب الإجابة هنا';
-          slot.classList.remove('filled');
-          this.updateMatchingProgress(questions, answers);
+          clearSlot(q.id, slot);
           return;
         }
         if (selectedWordEl) {
-          const idx = parseInt(selectedWordEl.dataset.idx, 10);
+          const wordEl = selectedWordEl;
+          const idx = parseInt(wordEl.dataset.idx, 10);
           assign(q.id, idx, slot);
-          selectedWordEl.classList.remove('active');
+          wordEl.classList.remove('active');
           selectedWordEl = null;
         }
       });
@@ -224,11 +251,17 @@ const UI = {
       wordEl.draggable = true;
       wordEl.dataset.idx = idx;
       wordEl.textContent = word;
+      wordEls[idx] = wordEl;
 
       wordEl.addEventListener('dragstart', e => {
+        if (wordEl.classList.contains('used')) {
+          e.preventDefault();
+          return;
+        }
         e.dataTransfer.setData('text/plain', idx);
       });
       wordEl.addEventListener('click', () => {
+        if (wordEl.classList.contains('used')) return;
         if (selectedWordEl === wordEl) {
           wordEl.classList.remove('active');
           selectedWordEl = null;
@@ -241,6 +274,8 @@ const UI = {
 
       bankCol.appendChild(wordEl);
     });
+
+    Object.values(answers).forEach(idx => setWordUsed(idx, true));
   },
 
   updateMatchingProgress(questions, answers) {
@@ -265,6 +300,15 @@ const UI = {
     this.els.reviewContainer.innerHTML = '';
     this.els.reviewContainer.classList.add('hidden');
     document.getElementById('resultRing').style.setProperty('--pct', results.percent);
+
+    const matchingDetails = (results.details || []).filter(d => d.question.type === 'matching');
+    if (matchingDetails.length > 0) {
+      const correct = matchingDetails.filter(d => d.isCorrect).length;
+      this.els.matchingSummary.textContent = `نتيجة المزاوجة: ${correct} / ${matchingDetails.length} صحيحة`;
+      this.els.matchingSummary.classList.remove('hidden');
+    } else {
+      this.els.matchingSummary.classList.add('hidden');
+    }
   },
 
   renderChapterResults(chapterName, results) {
@@ -277,7 +321,8 @@ const UI = {
   },
 
   renderReview(details, onlyWrong) {
-    const list = onlyWrong ? details.filter(d => !d.isCorrect) : details;
+    const nonMatching = details.filter(d => d.question.type !== 'matching');
+    const list = onlyWrong ? nonMatching.filter(d => !d.isCorrect) : nonMatching;
     const container = this.els.reviewContainer;
     container.innerHTML = '';
 
