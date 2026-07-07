@@ -15,7 +15,7 @@
   let globalAggregate = emptyResults();
   let reviewBackScreen = 'resultScreen';
 
-  const API_BASE = 'https://chemistry-quiz.khaled-kharmi.workers.dev';
+  const API_BASE = 'https://chemistry-quiz.khd07.workers.dev';
 
   // Track page view
   function trackPageView() {
